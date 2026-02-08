@@ -95,16 +95,29 @@ def user_logout(request):
 
 def tracker_view(request):
     """Displays the main expense tracking dashboard."""
+    
+    # Safety check: If not logged in, redirect to login page
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
-            form.save()
+            # commit=False prevents saving to the database immediately
+            expense = form.save(commit=False)
+            
+            # Manually link the expense to the current user
+            expense.user = request.user 
+            
+            # Now save the expense with the user_id included
+            expense.save()
+            
             messages.success(request, 'Expense added successfully!')
             return redirect('tracker')
     else:
         form = ExpenseForm()
     
-    # Kumuha ng LAHAT ng expenses (walang user filtering)
+    # Kumuha ng LAHAT ng expenses (or use request.user.expenses.all() if you want privacy)
     expenses = Expense.objects.all() 
     
     summary_data = get_summary_and_chart_data(expenses)
