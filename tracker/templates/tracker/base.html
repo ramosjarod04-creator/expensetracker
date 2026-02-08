@@ -1,90 +1,125 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    {# Stop Favicon 404s #}
-    <link rel="icon" href="data:,">
-    
-    <title>{% block title %}Daily Expense Tracker{% endblock %}</title>
-    
-    {# External Assets #}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <title>Daily Expense Tracker</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    {# The critical link - Check your folder structure for this! #}
-    <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
-    
-    {% block head_extras %}{% endblock %}
-    
     <style>
-        /* Keeping your Header/Menu CSS here as it acts as a safe fallback */
-        .header-container { position: relative; width: 100%; background: #2D2B55; padding: 10px 0; }
-        header { padding: 0 20px; color: white; }
-        .hamburger-menu {
-            position: absolute; top: 50%; right: 25px;
-            transform: translateY(-50%); color: white;
-            font-size: 1.8rem; cursor: pointer; z-index: 1001;
+        /* Keep all your CSS exactly as you had it */
+        :root {
+            --primary: #6C63FF; --primary-light: #8A84FF; --secondary: #FF6584;
+            --accent: #36D1DC; --success: #4CAF50; --warning: #FF9800;
+            --danger: #F44336; --light: #F8F9FA; --dark: #2D2B55;
+            --gray: #9E9E9E; --card-bg: #FFFFFF;
+            --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
-        .menu-dropdown {
-            display: none; position: absolute; top: 100%; right: 20px;
-            background: #2D2B55; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000;
-            min-width: 220px; padding: 10px 0; list-style: none;
-        }
-        .menu-dropdown.active { display: block; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .menu-dropdown li a { padding: 12px 20px; display: flex; align-items: center; color: #F8F9FA; text-decoration: none; }
-        .menu-dropdown li a i { margin-right: 12px; width: 20px; text-align: center; }
-        .welcome-item { padding: 10px 20px; color: #36D1DC; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--background); color: var(--dark); line-height: 1.6; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; padding: 25px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(108, 99, 255, 0.2); position: relative; overflow: hidden; }
+        h1 { font-size: 2.8rem; margin-bottom: 10px; font-weight: 700; position: relative; }
+        .main-content { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); }
+        .expense-form { position: sticky; top: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 12px; background: var(--light); }
+        .btn { display: inline-block; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none; padding: 15px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; width: 100%; }
+        .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .summary-card { padding: 20px; border-radius: 16px; text-align: center; color: white; }
+        .total { background: linear-gradient(135deg, var(--primary-light), var(--primary)); }
+        .today { background: linear-gradient(135deg, var(--accent), #5B86E5); }
+        .highest { background: linear-gradient(135deg, var(--secondary), #FF8A8A); }
+        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-radius: 16px; margin-bottom: 15px; background: var(--card-bg); border-left: 5px solid var(--primary); }
+        .category-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 20px; color: white; }
+        /* Category Colors */
+        .food { background: #FF9F1C; } .transport { background: #2EC4B6; } .shopping { background: #E71D36; }
+        .bills { background: #662E9B; } .entertainment { background: #F86624; } .other { background: #9E9E9E; }
+        @media (max-width: 968px) { .main-content { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header-container">
-            <header>
-                <h1><i class="fas fa-money-bill-wave"></i> Expense Tracker</h1>
-                <p class="app-description">Manage your budget in PHP</p>
-                <i class="fas fa-bars hamburger-menu" id="menuToggle"></i>
-            </header>
-            
-            <ul class="menu-dropdown" id="authMenu">
-                {% if user.is_authenticated %}
-                    <li class="welcome-item">Hi, {{ user.username }}!</li>
-                    <li><a href="{% url 'tracker' %}"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="{% url 'reports' %}"><i class="fas fa-chart-line"></i> Reports</a></li>
-                    <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                {% else %}
-                    <li><a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-                    <li><a href="{% url 'signup' %}"><i class="fas fa-user-plus"></i> Sign Up</a></li>
-                {% endif %}
-            </ul>
-        </div>
-        
-        {% block content %}{% endblock %}
-    </div>
+        <header>
+            <h1><i class="fas fa-money-bill-wave"></i> Expense Tracker</h1>
+            <p>Manage your budget in Philippine Peso effectively</p>
+        </header>
 
-    <script src="{% static 'tracker/js/script.js' %}" onerror="console.log('JS not found')"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const menuToggle = document.getElementById('menuToggle');
-            const authMenu = document.getElementById('authMenu');
-            if (menuToggle && authMenu) {
-                menuToggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    authMenu.classList.toggle('active');
-                });
-                document.addEventListener('click', (e) => {
-                    if (!authMenu.contains(e.target) && !menuToggle.contains(e.target)) {
-                        authMenu.classList.remove('active');
-                    }
-                });
-            }
-        });
-    </script>
-    {% block body_extras %}{% endblock %}
+        <div class="main-content">
+            <div class="card expense-form">
+                <h2>Add New Expense</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="date" required value="{{ today_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="category" required>
+                            <option value="food">Food & Dining</option>
+                            <option value="transport">Transportation</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="bills">Bills & Utilities</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="description" placeholder="What was it for?" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (₱)</label>
+                        <input type="number" name="amount" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn">Add Expense</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="summary">
+                    <div class="summary-card total">
+                        <h3>Total</h3>
+                        <div class="amount">₱{{ total_expenses|default:"0.00" }}</div>
+                    </div>
+                    <div class="summary-card today">
+                        <h3>Today</h3>
+                        <div class="amount">₱{{ today_total|default:"0.00" }}</div>
+                    </div>
+                    <div class="summary-card highest">
+                        <h3>Highest</h3>
+                        <div class="amount">₱{{ highest_expense|default:"0.00" }}</div>
+                    </div>
+                </div>
+
+                <h2>Recent Expenses</h2>
+                <div id="expensesContainer">
+                    {% for expense in expenses %}
+                    <div class="expense-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="category-icon {{ expense.category }}">
+                                <i class="fas 
+                                    {% if expense.category == 'food' %}fa-utensils
+                                    {% elif expense.category == 'transport' %}fa-bus
+                                    {% elif expense.category == 'shopping' %}fa-shopping-bag
+                                    {% elif expense.category == 'bills' %}fa-file-invoice
+                                    {% else %}fa-ellipsis-h{% endif %}"></i>
+                            </div>
+                            <div>
+                                <h4>{{ expense.description }}</h4>
+                                <small style="color: var(--gray);">{{ expense.date }}</small>
+                            </div>
+                        </div>
+                        <div style="font-weight: 700;">₱{{ expense.amount }}</div>
+                    </div>
+                    {% empty %}
+                    <p style="text-align: center; padding: 20px; color: var(--gray);">No expenses yet!</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
