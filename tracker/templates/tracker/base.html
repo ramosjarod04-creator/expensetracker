@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Daily Expense Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+    
+    {% block head_extras %}{% endblock %}
+    
+    {# NEW CSS FOR HAMBURGER MENU (Dapat ilipat sa style.css mo) #}
+    <style>
+        .header-container {
+            position: relative;
+            /* Ang header-container ay dapat ang wrapper ng iyong gradient header */
+        }
+        
+        .hamburger-menu {
+            position: absolute;
+            top: 50%;
+            right: 25px;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 5px;
+        }
+
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%; /* Sa ilalim ng header */
+            right: 20px;
+            background: var(--dark, #2D2B55);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            min-width: 200px;
+            padding: 10px 0;
+            list-style: none;
+        }
+
+        .menu-dropdown.active {
+            display: block;
+        }
+
+        .menu-dropdown li a {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            color: var(--light, #F8F9FA);
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .menu-dropdown li a i {
+            margin-right: 10px;
+        }
+
+        .menu-dropdown li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .welcome-item {
+            padding: 10px 15px;
+            color: var(--accent, #36D1DC);
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 5px;
+        }
+    </style>
+    
+</head>
+<body>
+    
+    {# Inalis ang hiwalay na nav. I-a-assume na ang iyong main content ay may wrapper na 'container' #}
+    <div class="container">
+        
+        {# A. Header Container (Ang iyong gradient banner) #}
+        <div class="header-container">
+            <header>
+                <h1><i class="fas fa-money-bill-wave"></i> Expense Tracker</h1>
+                <p class="app-description">Track your daily expenses in Philippine Peso and manage your budget effectively</p>
+                
+                {# NEW: HAMBURGER ICON (Tatlong guhit) #}
+                <i class="fas fa-bars hamburger-menu" id="menuToggle"></i>
+            </header>
+            
+            {# B. DROPDOWN MENU #}
+            <ul class="menu-dropdown" id="authMenu">
+                {% if user.is_authenticated %}
+                    <li class="welcome-item">Welcome, {{ user.username }}!</li>
+                    
+                    {# User Profile/Reports Link #}
+                    <li>
+                        <a href="{% url 'reports' %}">
+                            <i class="fas fa-chart-line"></i> Financial Reports
+                        </a>
+                    </li>
+                    
+                    {# Logout Link #}
+                    <li>
+                        <a href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    {# Login Link #}
+                    <li>
+                        <a href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                    
+                    {# Signup Link #}
+                    <li>
+                        <a href="{% url 'signup' %}">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+            
+        </div>
+        
+        {% block content %}{% endblock %}
+        
+    </div>
+    
+    <script src="{% static 'tracker/js/script.js' %}"></script>
+    
+    {# NEW: JAVASCRIPT FOR TOGGLING THE MENU #}
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const authMenu = document.getElementById('authMenu');
+
+        menuToggle.addEventListener('click', function() {
+            authMenu.classList.toggle('active');
+        });
+        
+        // Close the menu if the user clicks outside of it
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.header-container')) {
+                authMenu.classList.remove('active');
+            }
+        });
+    </script>
+    
+    {% block body_extras %}{% endblock %}
+</body>
+</html>

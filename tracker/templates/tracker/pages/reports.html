@@ -1,0 +1,142 @@
+{% extends 'tracker/base.html' %}
+{% load static %}
+{% load mathfilters %}
+
+{% block title %}Financial Reports{% endblock %}
+
+{% block content %}
+<div class="container report-page">
+    <header>
+        <h1><i class="fas fa-chart-line"></i> Financial Reports</h1>
+    </header>
+
+    {# SECTION: HIGH-LEVEL SUMMARY CARD (Only show if not 'highest') #}
+    {% if filter_type != 'highest' %}
+    <div class="summary-section">
+        {# Display Total, Today, Highest for the selected period #}
+        {% include 'tracker/organisms/summary_cards.html' %}
+    </div>
+    {% endif %}
+
+    {# SECTION: RANGE FILTER FORM (Itago kung 'today' or 'highest' ang pinindot sa home page) #}
+    {% if not filter_type or filter_type == 'custom' %}
+    <div class="report-controls">
+        {% include 'tracker/molecules/report_filter_form.html' %}
+    </div>
+    {% endif %}
+
+    
+    {# Display based on Filter Type #}
+    
+    {% if filter_type == 'today' %}
+        {# ========================================================================= #}
+        {# A. TODAY'S EXPENSES ANALYSIS #}
+        {# ========================================================================= #}
+        <h2 class="report-title today-title">
+            <i class="far fa-calendar-check"></i> Today's Category Expenses ({{ start_date|date:"F j, Y" }})
+        </h2>
+        
+        <div class="today-breakdown">
+            {% for category_slug, category_label in categories %}
+                {% for item in chart_data %}
+                    {% if item.slug == category_slug %}
+                        <div class="today-category-card {{ category_slug }}">
+                            <div class="card-header">
+                                <span class="category-label">{{ category_label }}</span>
+                                <div class="category-icon {{ category_slug }}">
+                                    {# Kopyahin ang icons mula sa expense_list.html #}
+                                    {% if category_slug == 'food' %}<i class="fas fa-utensils"></i>{% endif %}
+                                    {% if category_slug == 'transport' %}<i class="fas fa-bus"></i>{% endif %}
+                                    {% if category_slug == 'shopping' %}<i class="fas fa-shopping-bag"></i>{% endif %}
+                                    {% if category_slug == 'bills' %}<i class="fas fa-file-invoice"></i>{% endif %}
+                                    {% if category_slug == 'entertainment' %}<i class="fas fa-film"></i>{% endif %}
+                                    {% if category_slug == 'other' %}<i class="fas fa-ellipsis-h"></i>{% endif %}
+                                </div>
+                            </div>
+                            <div class="amount-today">
+                                {% if item.total > 0 %}
+                                    ₱{{ item.total|floatformat:2 }}
+                                    <p class="count">{{ expenses|length }} transaction{{ expenses|length|pluralize }}</p>
+                                {% else %}
+                                    <span class="empty-amount">No expense recorded today.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+        
+        <div class="today-total-summary">
+            <h3>TOTAL EXPENSE FOR TODAY: <span class="total-amount">₱{{ total|floatformat:2 }}</span></h3>
+        </div>
+
+
+    {% elif filter_type == 'highest' %}
+        {# ========================================================================= #}
+        {# B. HIGHEST EXPENSE ANALYSIS (Ikaw ang bahala logic) #}
+        {# ========================================================================= #}
+        <h2 class="report-title highest-title">
+            <i class="fas fa-trophy"></i> Highest Expense Record & Recommendation
+        </h2>
+        
+        {# Ipagpalagay na ang 'highest' expense object ay available #}
+        {# Ito ay kailangang i-extract at ipasa mula sa views.py #}
+        
+        {# TEMPORARY FIX: Dahil ang highest lang ang ipinapasa sa context, 
+           gagamitin natin ang data sa context na galing sa report_view #}
+        
+        <div class="highest-analysis-card">
+            
+            {% if highest > 0 %}
+                {# NOTE: Kailangan pa ng logic sa views.py para hanapin ang buong object ng highest expense #}
+                {# Sa ngayon, magbigay na lang tayo ng quote base sa highest amount #}
+                
+                <p class="highest-amount">Highest Recorded Expense in the current period:</p>
+                <div class="big-amount">₱{{ highest|floatformat:2 }}</div>
+                
+                <div class="recommendation-box">
+                    {% if highest > 5000 %}
+                        <p class="recommendation high-spending">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            **Recommendation:** This is a significantly high single expense. Consider reviewing if this was a necessary purchase or if there are cheaper alternatives for future expenses in this category.
+                        </p>
+                    {% elif highest > 1000 %}
+                        <p class="recommendation moderate-spending">
+                            <i class="fas fa-bell"></i> 
+                            **Recommendation:** This is a notable expense. Keep monitoring big purchases like this to ensure they align with your overall budget goals.
+                        </p>
+                    {% else %}
+                        <p class="recommendation low-spending">
+                            <i class="fas fa-check-circle"></i> 
+                            **Recommendation:** Your highest expense is manageable. Good job maintaining control over large single transactions!
+                        </p>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="no-data-msg">
+                    <p>No expense data found in the current period to analyze the highest expense.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+    {% else %}
+        {# ========================================================================= #}
+        {# C. DEFAULT/TOTAL EXPENSES DISPLAY (Filtered by Range or Category Breakdown) #}
+        {# ========================================================================= #}
+        <h2 class="report-title">
+            Expenses from {{ start_date|date:"F j, Y" }} to {{ end_date|date:"F j, Y" }}
+        </h2>
+        
+        <div class="chart-section">
+            {% include 'tracker/organisms/category_chart.html' %}
+        </div>
+
+        <div class="expense-list-container">
+            {% include 'tracker/organisms/expense_list.html' with expenses=expenses %}
+        </div>
+        
+    {% endif %}
+    
+</div>
+{% endblock %}

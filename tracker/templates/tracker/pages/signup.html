@@ -1,0 +1,66 @@
+{% extends 'tracker/auth_base.html' %}
+
+{% block title %}Daily Expense Tracker | Sign Up{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="form-header">
+        <h2><i class="fas fa-user-plus"></i> Create Account</h2>
+        <p>Start tracking your expenses today!</p>
+        
+        {# Display Django Messages #}
+        {% if messages %}
+        <ul class="errorlist">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {# Display Non-Field Errors #}
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        {# LOOP THROUGH FORM FIELDS #}
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">
+                    {% if field.label == 'Username' %}<i class="fas fa-user"></i>{% endif %}
+                    {% if 'Password' in field.label %}<i class="fas fa-lock"></i>{% endif %}
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {# Display Field Specific Errors #}
+                {% if field.errors %}
+                    <ul class="errorlist">
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {# Display help text for password requirements #}
+                {% if field.help_text %}
+                    <small class="form-text" style="color: var(--gray);">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn">
+            <i class="fas fa-user-plus"></i> Sign Up
+        </button>
+    </form>
+    
+    <p class="login-link">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+</div>
+{% endblock %}

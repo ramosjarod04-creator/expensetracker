@@ -1,0 +1,59 @@
+<form method="get" class="filter-form">
+    
+    <label for="range-type">Select Range:</label>
+    <select name="range" id="range-type">
+        <option value="weekly" {% if range_type == 'weekly' %}selected{% endif %}>Weekly</option>
+        <option value="monthly" {% if range_type == 'monthly' %}selected{% endif %}>Monthly</option>
+        <option value="yearly" {% if range_type == 'yearly' %}selected{% endif %}>Yearly</option>
+        <option value="custom" {% if range_type == 'custom' %}selected{% endif %}>Custom Range</option>
+    </select>
+    
+    <div id="custom-range-fields" class="custom-range-fields">
+        <label for="start_date">Start Date:</label>
+        <input type="date" name="start_date" value="{{ start_date|default:'' }}" id="start_date">
+        
+        <label for="end_date">End Date:</label>
+        <input type="date" name="end_date" value="{{ end_date|default:'' }}" id="end_date">
+
+        <button type="submit" class="btn btn-secondary">Apply Custom Range</button>
+    </div>
+</form>
+
+<script>
+    // Get the elements
+    const rangeSelect = document.getElementById('range-type');
+    const customFieldsDiv = document.getElementById('custom-range-fields');
+
+    // CSS Class for hiding the element
+    const hiddenClass = 'hidden'; 
+
+    /**
+     * Toggles the visibility of the custom date fields.
+     */
+    function toggleCustomFields() {
+        if (rangeSelect.value === 'custom') {
+            customFieldsDiv.classList.remove(hiddenClass);
+        } else {
+            customFieldsDiv.classList.add(hiddenClass);
+        }
+    }
+
+    // 1. Event Listener: Handle range selection change
+    rangeSelect.addEventListener('change', function() {
+        toggleCustomFields(); // Show/hide fields
+        
+        // Automatically submit the form for pre-set ranges (Weekly, Monthly, Yearly)
+        if (this.value !== 'custom') {
+            this.form.submit(); 
+        }
+    });
+
+    // 2. Initial State: Set fields visibility when the page loads
+    // We wrap this in an IIFE to execute immediately
+    (function() {
+        // If the page loads and the selected value IS NOT 'custom', hide the fields.
+        if (rangeSelect.value !== 'custom') {
+            customFieldsDiv.classList.add(hiddenClass);
+        }
+    })();
+</script>

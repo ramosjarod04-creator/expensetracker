@@ -1,0 +1,265 @@
+<div class="card chart-container-card">
+    <div class="section-title">
+        <i class="fas fa-chart-pie"></i>
+        <h3>Expenses by Category</h3>
+    </div>
+    
+    {% if has_expenses %}
+    <div class="pie-chart-wrapper">
+        <div class="pie-chart-canvas-container">
+            <canvas id="expensePieChart"></canvas>
+        </div>
+        
+        <div class="chart-legend">
+            {% for item in chart_data %}
+            {% if item.total > 0 %}
+            <div class="legend-item">
+                <div class="legend-info">
+                    <span class="category-icon-small {{ item.slug }}">
+                        {% if item.slug == 'food' %}<i class="fas fa-utensils"></i>{% endif %}
+                        {% if item.slug == 'transport' %}<i class="fas fa-bus"></i>{% endif %}
+                        {% if item.slug == 'shopping' %}<i class="fas fa-shopping-bag"></i>{% endif %}
+                        {% if item.slug == 'bills' %}<i class="fas fa-file-invoice-dollar"></i>{% endif %}
+                        {% if item.slug == 'entertainment' %}<i class="fas fa-film"></i>{% endif %}
+                        {% if item.slug == 'other' %}<i class="fas fa-ellipsis-h"></i>{% endif %}
+                    </span>
+                    <span class="legend-label">{{ item.label }}</span>
+                </div>
+                <span class="legend-amount">₱{{ item.total|floatformat:2 }}</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="total-expenses">
+        <div class="total-label">Total Expenses</div>
+        <div class="total-amount">₱{{ total|floatformat:2 }}</div>
+    </div>
+    {% else %}
+    <div class="no-expenses">
+        <i class="fas fa-chart-pie"></i>
+        <p>No expenses to display</p>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartData = [
+        {% for item in chart_data %}
+                {
+                    slug: '{{ item.slug }}',
+                    label: '{{ item.label }}',
+                    total: {{ item.total }}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+    
+    // Filter out zero values
+    const filteredData = chartData.filter(item => item.total > 0);
+    
+    if (filteredData.length === 0) return;
+    
+    // Category colors matching your design
+    const colors = {
+        'food': '#FF9F1C',
+        'transport': '#2EC4B6',
+        'shopping': '#E71D36',
+        'bills': '#662E9B',
+        'entertainment': '#F86624',
+        'other': '#9E9E9E'
+    };
+    
+    const ctx = document.getElementById('expensePieChart');
+    if (!ctx) return;
+    
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: filteredData.map(item => item.label),
+            datasets: [{
+                data: filteredData.map(item => item.total),
+                backgroundColor: filteredData.map(item => colors[item.slug]),
+                borderColor: '#ffffff',
+                borderWidth: 3,
+                hoverOffset: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                    titleColor: '#2D2B55',
+                    bodyColor: '#2D2B55',
+                    borderColor: '#e0e0e0',
+                    borderWidth: 2,
+                    padding: 15,
+                    displayColors: true,
+                    boxWidth: 20,
+                    boxHeight: 20,
+                    bodyFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    titleFont: {
+                        size: 15,
+                        weight: 'bold'
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return ` ₱${value.toFixed(2)} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.pie-chart-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pie-chart-canvas-container {
+    position: relative;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#expensePieChart {
+    max-width: 300px;
+    max-height: 300px;
+}
+
+.chart-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.legend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: var(--light);
+    border-radius: 12px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s;
+}
+
+.legend-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.legend-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.category-icon-small {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.legend-label {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 1rem;
+}
+
+.legend-amount {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--primary);
+}
+
+/* Border colors for legend items */
+.legend-item:has(.food) { border-left-color: #FF9F1C; }
+.legend-item:has(.transport) { border-left-color: #2EC4B6; }
+.legend-item:has(.shopping) { border-left-color: #E71D36; }
+.legend-item:has(.bills) { border-left-color: #662E9B; }
+.legend-item:has(.entertainment) { border-left-color: #F86624; }
+.legend-item:has(.other) { border-left-color: #9E9E9E; }
+
+.total-expenses {
+    margin-top: 20px;
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(54, 209, 220, 0.1));
+    border-radius: 12px;
+    text-align: center;
+    border-left: 4px solid var(--primary);
+}
+
+.total-label {
+    color: var(--gray);
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.total-amount {
+    color: var(--primary);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.no-expenses {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--gray);
+}
+
+.no-expenses i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+@media (max-width: 968px) {
+    .pie-chart-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .pie-chart-canvas-container {
+        height: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pie-chart-canvas-container {
+        height: 250px;
+    }
+    
+    #expensePieChart {
+        max-width: 250px;
+        max-height: 250px;
+    }
+}
+</style>

@@ -1,0 +1,21 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Tracker - My Expenses{% endblock %}
+
+{% block content %}
+<div class="container">
+    {# Tiyakin na inalis mo na ang redundant header mula dito #}
+    
+    <div class="main-content">
+        
+        {# A. ADD EXPENSE FORM #}
+        {% include 'tracker/organisms/expense_form.html' %} 
+        
+        {# B. EXPENSE LIST #}
+        {% include 'tracker/organisms/expense_list.html' %}
+        
+    </div>
+    
+    {% include 'tracker/organisms/category_chart.html' %} 
+</div>
+{% endblock %}

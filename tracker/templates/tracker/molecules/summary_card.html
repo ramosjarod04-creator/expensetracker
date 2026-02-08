@@ -1,0 +1,17 @@
+<div class="summary">
+    {# TANGGALIN ang section-title DIV dito #}
+
+    <a href="{% url 'reports' %}?range=custom" class="summary-link" data-filter="total">
+        {% include 'tracker/molecules/summary_card_item.html' with title='Total Expenses' amount='₱'|add:total|floatformat:2 class='total' %}
+    </a>
+
+    <a href="{% url 'reports' %}?filter=today" class="summary-link" data-filter="today">
+        {% include 'tracker/molecules/summary_card_item.html' with title="Today's Expenses" amount='₱'|add:today_total|floatformat:2 class='today' %}
+    </a>
+
+    <a href="{% url 'reports' %}?filter=highest" class="summary-link" data-filter="highest">
+        {% include 'tracker/molecules/summary_card_item.html' with title='Highest Expense' amount='₱'|add:highest|floatformat:2 class='highest' %}
+
+    </a>
+
+</div>

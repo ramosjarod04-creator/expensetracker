@@ -1,0 +1,47 @@
+<div class="card expense-form-container">
+    <div class="form-header">
+        <h2 id="formTitle"><i class="fas fa-plus-circle"></i> Add New Expense</h2>
+        <div class="form-icon"><i class="fas fa-peso-sign"></i></div>
+    </div>
+    
+    {# Tinitingnan kung naka-login ang user #}
+    {% if user.is_authenticated %}
+        {# Kung naka-login, gamitin ang standard POST method para mag-submit ng data #}
+        <form method="post" id="expenseForm">
+    {% else %}
+        {# Kung HINDI naka-login, gamitin ang GET method para hindi ma-submit ang form, at hihintayin natin ang user na mag-click sa 'button' link #}
+        <form method="get" id="expenseForm" class="login-required-form"> 
+    {% endif %}
+        
+        {% csrf_token %}
+        
+        {# Date Field #}
+        {% include 'tracker/molecules/form_group.html' with field=form.date icon='far fa-calendar' %}
+        
+        {# Category Field #}
+        {% include 'tracker/molecules/form_group.html' with field=form.category icon='fas fa-tag' %}
+        
+        {# Description Field #}
+        {% include 'tracker/molecules/form_group.html' with field=form.description icon='fas fa-clipboard-list' %}
+        
+        {# Amount Field #}
+        {% include 'tracker/molecules/form_group.html' with field=form.amount icon='fas fa-peso-sign' %}
+        
+        
+        <div class="form-actions">
+            {# Add Expense Button #}
+            {% if user.is_authenticated %}
+                {# Standard Submit Button kapag naka-login #}
+                {% include 'tracker/atoms/button.html' with text='Add Expense' icon='fas fa-plus' class='btn btn-primary' type='submit' id='submitBtn' %}
+            {% else %}
+                {# FINAL FIX: Pinalitan ng <a> tag na naka-style bilang button, at direktang nagre-redirect sa login page #}
+                <a href="{% url 'login' %}" class="btn btn-primary" id='submitBtn' style="text-decoration: none; padding: 15px 20px; text-align: center;">
+                    <i class="fas fa-lock"></i> Login to Add Expense
+                </a>
+            {% endif %}
+
+            {# Cancel Edit Button #}
+            {% include 'tracker/atoms/button.html' with text='Cancel Edit' icon='fas fa-times' class='btn btn-cancel' type='button' id='cancelBtn' style='display: none;' %}
+        </div>
+    </form>
+</div>

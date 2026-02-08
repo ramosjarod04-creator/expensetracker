@@ -1,0 +1,9 @@
+<button 
+    type="{{ type|default:'button' }}" 
+    class="btn {{ class }}" 
+    id="{{ id }}" 
+    {% if style %}style="{{ style }}"{% endif %}
+>
+    {% if icon %}<i class="{{ icon }}"></i>{% endif %}
+    {{ text|default:'Submit' }}
+</button>

@@ -1,0 +1,61 @@
+{% extends 'tracker/auth_base.html' %}
+
+{% block title %}Daily Expense Tracker | Login{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="form-header">
+        <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+        <p>Login to access your expense tracker</p>
+        
+        {# Display Django Messages (like success from signup) #}
+        {% if messages %}
+        <ul class="errorlist">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {# Display Non-Field Errors (like invalid credentials) #}
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        {# LOOP THROUGH FORM FIELDS #}
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">
+                    {% if field.label == 'Username' %}<i class="fas fa-user"></i>{% endif %}
+                    {% if 'Password' in field.label %}<i class="fas fa-lock"></i>{% endif %}
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {# Display Field Specific Errors #}
+                {% if field.errors %}
+                    <ul class="errorlist">
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn">
+            <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+    </form>
+    
+    <p class="signup-link">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+</div>
+{% endblock %}
