@@ -415,7 +415,7 @@
             box-shadow: 0 6px 15px rgba(108, 99, 255, 0.4);
         }
 
-        /* Expense Summary Section - FIXED TEXT STYLING */
+        /* Expense Summary Section - GRADIENT CARDS */
         .summary-section {
             margin-bottom: 1.5rem;
         }
@@ -434,32 +434,46 @@
             color: var(--primary-purple);
         }
         
-        /* Summary Links - FIXED STYLING */
-        .summary-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0.625rem;
+        /* Summary Cards - GRADIENT BUTTONS */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
         
-        .summary-link {
-            display: block;
-            padding: 0.75rem 1rem;
-            background: var(--bg-light);
-            border-radius: 10px;
+        .summary-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 0.75rem;
+            border-radius: 12px;
             text-decoration: none;
-            color: var(--primary-purple);
+            color: white;
             font-weight: 600;
-            font-size: 0.875rem;
-            border: 1px solid var(--border);
-            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: none;
+            cursor: pointer;
         }
         
-        .summary-link:hover {
-            background: var(--primary-purple);
-            color: white;
-            border-color: var(--primary-purple);
-            transform: translateX(4px);
+        .summary-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .summary-button.total {
+            background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+        }
+        
+        .summary-button.today {
+            background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+        }
+        
+        .summary-button.highest {
+            background: linear-gradient(135deg, #f87171 0%, #f43f5e 100%);
         }
 
         /* Recent Expenses */
@@ -685,6 +699,10 @@
                 grid-template-columns: 1fr; /* Stack on mobile */
             }
             
+            .summary-cards {
+                grid-template-columns: 1fr; /* Stack summary cards on tablet */
+            }
+            
             .breakdown-content {
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
@@ -718,6 +736,11 @@
             
             .top-section {
                 gap: 1rem;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr; /* Stack on mobile */
+                gap: 0.625rem;
             }
             
             .menu-container {
