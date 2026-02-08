@@ -18,6 +18,11 @@
             --card-bg: #FFFFFF;
             --background: #f0f2f5; 
             --input-bg: #f8f9fa;
+            
+            /* Summary Card Gradients from your image */
+            --grad-total: linear-gradient(135deg, #8A84FF 0%, #6C63FF 100%);
+            --grad-today: linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%);
+            --grad-high: linear-gradient(135deg, #FF6584 0%, #FF8A97 100%);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -42,14 +47,13 @@
             position: relative;
         }
 
-        /* FIXED: Hamburger Menu Visibility */
         .hamburger-menu {
             position: absolute;
             top: 40px;
             right: 30px;
             cursor: pointer;
             font-size: 1.8rem;
-            color: white; /* Forced white to stand out against gradient */
+            color: white;
             z-index: 10;
         }
 
@@ -62,23 +66,51 @@
             margin-bottom: 30px;
         }
 
-        /* --- NEW: Form Field Styling to match screenshot --- */
+        .card h3 {
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--dark);
+        }
+
+        /* --- Expense Summary Grid (Inside the card) --- */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            padding: 20px 15px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .summary-box:hover { transform: translateY(-5px); }
+
+        .summary-box span { display: block; font-size: 0.8rem; opacity: 0.9; margin-bottom: 5px; }
+        .summary-box strong { display: block; font-size: 1.1rem; font-weight: 700; }
+
+        .bg-total { background: var(--grad-total); }
+        .bg-today { background: var(--grad-today); }
+        .bg-high { background: var(--grad-high); }
+
+        /* --- Form Styling --- */
         input, select, textarea {
             width: 100%;
             padding: 12px 15px;
             margin: 8px 0 20px 0;
             border: 1px solid #eee;
-            border-radius: 12px; /* Rounded fields */
+            border-radius: 12px;
             background-color: var(--input-bg);
             font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: #fff;
-            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
         }
 
         button, .btn-primary {
@@ -90,15 +122,10 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: 0.3s;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
-
-        /* Grid Layout */
+        /* Layout */
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1.8fr;
@@ -108,6 +135,7 @@
 
         @media (max-width: 968px) {
             .main-content { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
         }
 
         {% block extra_css %}{% endblock %}
