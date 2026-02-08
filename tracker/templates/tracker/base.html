@@ -8,6 +8,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
     <style>
@@ -19,7 +20,7 @@
             --background: #f0f2f5; 
             --input-bg: #f8f9fa;
             
-            /* Summary Card Gradients from your image */
+            /* Gradients for Summary Boxes from your screenshot */
             --grad-total: linear-gradient(135deg, #8A84FF 0%, #6C63FF 100%);
             --grad-today: linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%);
             --grad-high: linear-gradient(135deg, #FF6584 0%, #FF8A97 100%);
@@ -36,6 +37,7 @@
         
         .container { max-width: 1100px; margin: 0 auto; }
         
+        /* Header styling with the gradient from your local screenshot */
         header {
             text-align: center;
             margin-bottom: 40px;
@@ -47,6 +49,10 @@
             position: relative;
         }
 
+        header h1 { font-size: 2.2rem; margin-bottom: 5px; }
+        header p { opacity: 0.9; font-weight: 300; }
+
+        /* FIXED: Hamburger Menu Visibility */
         .hamburger-menu {
             position: absolute;
             top: 40px;
@@ -57,6 +63,7 @@
             z-index: 10;
         }
 
+        /* Card Styling */
         .card {
             background: var(--card-bg);
             padding: 30px;
@@ -71,38 +78,48 @@
             font-size: 1.2rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             color: var(--dark);
         }
 
-        /* --- Expense Summary Grid (Inside the card) --- */
+        /* Main Grid Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.8fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* --- SUMMARY BOX STYLING (The colored boxes) --- */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .summary-box {
-            padding: 20px 15px;
+            padding: 20px 10px;
             border-radius: 15px;
-            color: white;
+            color: white !important;
             text-align: center;
-            text-decoration: none;
+            text-decoration: none !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             transition: transform 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .summary-box:hover { transform: translateY(-5px); }
-
-        .summary-box span { display: block; font-size: 0.8rem; opacity: 0.9; margin-bottom: 5px; }
-        .summary-box strong { display: block; font-size: 1.1rem; font-weight: 700; }
+        .summary-box:hover { transform: translateY(-3px); }
+        .summary-box span { font-size: 0.75rem; opacity: 0.9; margin-bottom: 4px; }
+        .summary-box strong { font-size: 1rem; font-weight: 600; }
 
         .bg-total { background: var(--grad-total); }
         .bg-today { background: var(--grad-today); }
         .bg-high { background: var(--grad-high); }
 
-        /* --- Form Styling --- */
+        /* --- FORM FIELD STYLING --- */
         input, select, textarea {
             width: 100%;
             padding: 12px 15px;
@@ -111,6 +128,14 @@
             border-radius: 12px;
             background-color: var(--input-bg);
             font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
         }
 
         button, .btn-primary {
@@ -125,17 +150,16 @@
             transition: 0.3s;
         }
 
-        /* Layout */
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1.8fr;
-            gap: 30px;
-            align-items: start;
+        button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
         }
 
+        /* Responsive Fixes */
         @media (max-width: 968px) {
             .main-content { grid-template-columns: 1fr; }
             .summary-grid { grid-template-columns: 1fr; }
+            header { padding: 30px 20px; }
         }
 
         {% block extra_css %}{% endblock %}
@@ -152,6 +176,13 @@
         {% block content %}{% endblock %}
     </div>
 
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            // Add your menu toggle logic here (e.g., sidebar)
+            console.log("Menu clicked");
+        });
+    </script>
+    
     {% block body_extras %}{% endblock %}
 </body>
 </html>
