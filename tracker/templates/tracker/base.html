@@ -4,185 +4,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Daily Expense Tracker{% endblock %}</title>
+    <title>{% block title %}ExpensePro{% endblock %}</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-
     <style>
         :root {
-            --primary: #6C63FF;
-            --accent: #36D1DC;
-            --dark: #2D2B55;
-            --card-bg: #FFFFFF;
-            --background: #f0f2f5; 
-            --input-bg: #f8f9fa;
-            
-            /* Gradients for Summary Boxes from your screenshot */
-            --grad-total: linear-gradient(135deg, #8A84FF 0%, #6C63FF 100%);
-            --grad-today: linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%);
-            --grad-high: linear-gradient(135deg, #FF6584 0%, #FF8A97 100%);
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #06b6d4;
+            --dark: #0f172a;
+            --slate: #64748b;
+            --bg: #f8fafc;
+            /* Professional Gradients */
+            --grad-main: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            --grad-total: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+            --grad-today: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+            --grad-high: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
         }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        
-        body {
-            background-color: var(--background);
-            color: var(--dark);
-            min-height: 100vh;
-            padding: 40px 20px;
-        }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: var(--dark); padding: 2rem 1rem; line-height: 1.5; }
         .container { max-width: 1100px; margin: 0 auto; }
-        
-        /* Header styling with the gradient from your local screenshot */
+
+        /* Header */
         header {
+            background: var(--grad-main);
+            padding: 3rem 2rem;
+            border-radius: 24px;
             text-align: center;
-            margin-bottom: 40px;
-            padding: 40px;
-            background: linear-gradient(135deg, #6C63FF 0%, #36D1DC 100%);
             color: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(108, 99, 255, 0.2);
-            position: relative;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
         }
+        header h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -1px; }
+        header p { opacity: 0.9; font-size: 1rem; }
 
-        header h1 { font-size: 2.2rem; margin-bottom: 5px; }
-        header p { opacity: 0.9; font-weight: 300; }
+        /* Dashboard Layout */
+        .main-grid { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
 
-        /* FIXED: Hamburger Menu Visibility */
-        .hamburger-menu {
-            position: absolute;
-            top: 40px;
-            right: 30px;
-            cursor: pointer;
-            font-size: 1.8rem;
-            color: white;
-            z-index: 10;
-        }
-
-        /* Card Styling */
+        /* Professional Cards */
         .card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-            border: none;
-            margin-bottom: 30px;
+            background: white;
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
         }
-
-        .card h3 {
-            margin-bottom: 25px;
-            font-size: 1.2rem;
+        .card h3 { 
+            font-size: 0.9rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            color: var(--slate); 
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 12px;
-            color: var(--dark);
+            gap: 10px;
         }
 
-        /* Main Grid Layout */
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1.8fr;
-            gap: 30px;
-            align-items: start;
-        }
-
-        /* --- SUMMARY BOX STYLING (The colored boxes) --- */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .summary-box {
-            padding: 20px 10px;
-            border-radius: 15px;
-            color: white !important;
+        /* Summary Boxes (Matches your local design) */
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .summary-item {
+            padding: 1.25rem;
+            border-radius: 16px;
+            color: white;
             text-align: center;
-            text-decoration: none !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             transition: transform 0.2s;
         }
+        .summary-item:hover { transform: translateY(-3px); }
+        .summary-item span { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; opacity: 0.9; margin-bottom: 4px; }
+        .summary-item strong { font-size: 1.1rem; font-weight: 800; }
 
-        .summary-box:hover { transform: translateY(-3px); }
-        .summary-box span { font-size: 0.75rem; opacity: 0.9; margin-bottom: 4px; }
-        .summary-box strong { font-size: 1rem; font-weight: 600; }
+        .st-total { background: var(--grad-total); }
+        .st-today { background: var(--grad-today); }
+        .st-high { background: var(--grad-high); }
 
-        .bg-total { background: var(--grad-total); }
-        .bg-today { background: var(--grad-today); }
-        .bg-high { background: var(--grad-high); }
-
-        /* --- FORM FIELD STYLING --- */
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            margin: 8px 0 20px 0;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            background-color: var(--input-bg);
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+        /* Professional List Items */
+        .expense-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: #fff;
+            border-radius: 16px;
+            margin-bottom: 0.75rem;
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
         }
+        .expense-row:hover { border-color: var(--primary); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .expense-info h4 { font-size: 1rem; font-weight: 700; color: var(--dark); }
+        .expense-info p { font-size: 0.8rem; color: var(--slate); }
+        .expense-amt { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
 
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: #fff;
-            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
-        }
-
-        button, .btn-primary {
+        /* Form Inputs */
+        input, select {
             width: 100%;
-            padding: 14px;
-            border: none;
+            padding: 0.75rem 1rem;
             border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 1.25rem;
+            font-size: 0.95rem;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
             background: var(--primary);
             color: white;
-            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
         }
+        .btn-submit:hover { background: var(--primary-dark); }
 
-        button:hover {
-            filter: brightness(1.1);
-            transform: translateY(-2px);
+        @media (max-width: 900px) {
+            .main-grid, .summary-grid { grid-template-columns: 1fr; }
         }
-
-        /* Responsive Fixes */
-        @media (max-width: 968px) {
-            .main-content { grid-template-columns: 1fr; }
-            .summary-grid { grid-template-columns: 1fr; }
-            header { padding: 30px 20px; }
-        }
-
-        {% block extra_css %}{% endblock %}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-money-bill-wave"></i> Expense Tracker</h1>
-            <p>Track your daily expenses in Philippine Peso and manage your budget effectively</p>
-            <i class="fas fa-bars hamburger-menu" id="menuToggle"></i>
+            <h1><i class="fas fa-chart-line"></i> ExpensePro</h1>
+            <p>Smart financial tracking for your daily lifestyle</p>
         </header>
-
         {% block content %}{% endblock %}
     </div>
-
-    <script>
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            // Add your menu toggle logic here (e.g., sidebar)
-            console.log("Menu clicked");
-        });
-    </script>
-    
-    {% block body_extras %}{% endblock %}
 </body>
 </html>
