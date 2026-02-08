@@ -1,169 +1,113 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    {# 1. STOP FAVICON 404 ERRORS #}
-    <link rel="icon" href="data:,">
-    
     <title>{% block title %}Daily Expense Tracker{% endblock %}</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
-    
-    {% block head_extras %}{% endblock %}
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
     <style>
-        .header-container {
-            position: relative;
-            width: 100%;
+        /* CSS directly from your index.html */
+        :root {
+            --primary: #6C63FF;
+            --primary-light: #8A84FF;
+            --secondary: #FF6584;
+            --accent: #36D1DC;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --light: #F8F9FA;
+            --dark: #2D2B55;
+            --gray: #9E9E9E;
+            --card-bg: #FFFFFF;
+            --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
         
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background: var(--background);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* The "Glass" effect from your index */
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        /* Sidebar/Main Layout Grid */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .main-content { grid-template-columns: 1fr; }
+        }
+
+        /* Hamburger Menu Styling */
         .hamburger-menu {
             position: absolute;
             top: 50%;
             right: 25px;
             transform: translateY(-50%);
-            color: white;
-            font-size: 1.8rem;
             cursor: pointer;
-            z-index: 1001;
-            padding: 5px;
+            font-size: 1.5rem;
         }
 
-        .menu-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%; 
-            right: 20px;
-            background: #2D2B55; /* Solid color fallback */
-            background: var(--dark, #2D2B55);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            min-width: 220px;
-            padding: 10px 0;
-            list-style: none;
-        }
-
-        .menu-dropdown.active {
-            display: block;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .menu-dropdown li a {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            color: #F8F9FA;
-            color: var(--light, #F8F9FA);
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-        
-        .menu-dropdown li a i {
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .menu-dropdown li a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .welcome-item {
-            padding: 10px 20px;
-            color: #36D1DC;
-            color: var(--accent, #36D1DC);
-            font-weight: 600;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
+        {% block extra_css %}{% endblock %}
     </style>
 </head>
 <body>
-    
     <div class="container">
-        
-        <div class="header-container">
-            <header>
-                <h1><i class="fas fa-money-bill-wave"></i> Expense Tracker</h1>
-                <p class="app-description">Track your daily expenses in Philippine Peso and manage your budget effectively</p>
-                
-                <i class="fas fa-bars hamburger-menu" id="menuToggle" aria-label="Toggle Menu"></i>
-            </header>
+        <header>
+            <h1><i class="fas fa-money-bill-wave"></i> Expense Tracker</h1>
+            <p class="app-description">Track your daily expenses in Philippine Peso and manage your budget effectively</p>
             
-            <ul class="menu-dropdown" id="authMenu">
-                {% if user.is_authenticated %}
-                    <li class="welcome-item">Hi, {{ user.username }}!</li>
-                    
-                    <li>
-                        <a href="{% url 'tracker' %}">
-                            <i class="fas fa-home"></i> Dashboard
-                        </a>
-                    </li>
+            <i class="fas fa-bars hamburger-menu" id="menuToggle"></i>
+        </header>
 
-                    <li>
-                        <a href="{% url 'reports' %}">
-                            <i class="fas fa-chart-line"></i> Financial Reports
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{% url 'logout' %}">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="{% url 'login' %}">
-                            <i class="fas fa-sign-in-alt"></i> Login
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'signup' %}">
-                            <i class="fas fa-user-plus"></i> Sign Up
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-        
         {% block content %}{% endblock %}
-        
-    </div>
-    
-    {# 2. WRAP SCRIPTS IN CHECK TO PREVENT 404 LOG SPAM IF FILE MISSING #}
-    <script src="{% static 'tracker/js/script.js' %}" onerror="console.log('Static JS not found yet')"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const menuToggle = document.getElementById('menuToggle');
-            const authMenu = document.getElementById('authMenu');
 
-            menuToggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-                authMenu.classList.toggle('active');
+    </div>
+
+    <script>
+        // Global logic for menu
+        const menuToggle = document.getElementById('menuToggle');
+        if(menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                // Add your menu toggle logic here
             });
-            
-            // Close the menu if the user clicks anywhere else
-            document.addEventListener('click', function(event) {
-                if (!authMenu.contains(event.target) && !menuToggle.contains(event.target)) {
-                    authMenu.classList.remove('active');
-                }
-            });
-        });
+        }
     </script>
     
     {% block body_extras %}{% endblock %}
