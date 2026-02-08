@@ -1,0 +1,14 @@
+# Ignore local database
+db.sqlite3
+
+# Ignore virtual environments
+venv/
+env/
+.venv/
+
+# Ignore Python cache and build artifacts
+__pycache__/
+*.pyc
+staticfiles/
+media/
+.git/
