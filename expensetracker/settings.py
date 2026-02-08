@@ -57,7 +57,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'expensetracker.wsgi.application'
 
 # --- DATABASE CONFIGURATION ---
-# Neon/PostgreSQL requires SSL. We check for DATABASE_URL in environment.
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
@@ -66,18 +65,16 @@ if DATABASE_URL:
             default=DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
-            ssl_require=True  # Required for Neon
+            ssl_require=True
         )
     }
 else:
-    # Local development fallback
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-# ------------------------------
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -93,11 +90,19 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+# --- STATIC FILES CONFIGURATION ---
+STATIC_URL = '/static/'
+
+# This is where collectstatic will put files for deployment
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Storage engine to serve compressed static files
+# This tells Django where to find your app's static files locally
+# IMPORTANT: This must point to your tracker/static folder
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'tracker', 'static'),
+]
+
+# WhiteNoise storage engine
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
