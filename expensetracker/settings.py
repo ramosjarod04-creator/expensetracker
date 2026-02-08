@@ -9,13 +9,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-w76zva(8jc+mtp*4!jmsiw$$md99e$d^3(3l2ldw$157&jupvg')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # Allow Vercel domains and local development
 ALLOWED_HOSTS = ['.vercel.app', 'now.sh', '127.0.0.1', 'localhost']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -58,20 +57,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'expensetracker.wsgi.application'
 
 # --- DATABASE CONFIGURATION ---
-# This looks for DATABASE_URL (Neon). If it doesn't find it, it uses local SQLite.
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+# Neon/PostgreSQL requires SSL. We check for DATABASE_URL in environment.
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# Fallback for local development if DATABASE_URL is not set in your .env or system
-if not DATABASES['default']:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True  # Required for Neon
+        )
+    }
+else:
+    # Local development fallback
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
 # ------------------------------
 
@@ -98,3 +102,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Auth Redirects
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'tracker'
+LOGOUT_REDIRECT_URL = 'login'
