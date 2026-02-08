@@ -3,57 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Daily Expense Tracker{% endblock %}</title>
+    <title>{% block title %}Expense Tracker{% endblock %}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* Your existing CSS Variables and Global Styles */
         :root {
-            --primary: #6C63FF;
-            --primary-light: #8A84FF;
-            --secondary: #FF6584;
-            --accent: #36D1DC;
-            --success: #4CAF50;
-            --warning: #FF9800;
-            --danger: #F44336;
-            --light: #F8F9FA;
-            --dark: #2D2B55;
-            --gray: #9E9E9E;
+            --primary-gradient: linear-gradient(135deg, #6C63FF 0%, #36D1DC 100%);
+            --bg-color: #E9EEF7;
             --card-bg: #FFFFFF;
-            --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: var(--background); color: var(--dark); line-height: 1.6; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        
-        header {
-            text-align: center; margin-bottom: 30px; padding: 25px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(108, 99, 255, 0.2);
-            position: relative; overflow: hidden;
+            --text-main: #2D2B55;
+            --text-muted: #7D8597;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --border-radius: 24px;
         }
 
-        /* Shared Card Styles */
-        .card {
-            background: var(--card-bg); padding: 25px; border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); transition: transform 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Hero Header Section */
+        header {
+            background: var(--primary-gradient);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            color: white;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        header p {
+            opacity: 0.9;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+
+        /* Layout Grid */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        /* Card Styling */
+        .glass-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            color: #6C63FF;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Summary Button Styles */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .sum-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 15px 5px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .total-exp { background: #8A84FF; }
+        .today-exp { background: #56CCF2; }
+        .high-exp { background: #FF8A8A; }
+
+        .sum-btn:hover { transform: translateY(-3px); }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 20px; }
+        label { 
+            display: block; 
+            font-size: 0.75rem; 
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background: #F8FAFD;
+            border: 1px solid #E0E7FF;
+            border-radius: 12px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: #6C63FF;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.3);
+        }
+
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
         }
 
         {% block extra_css %}{% endblock %}
     </style>
 </head>
 <body>
+
     <div class="container">
         <header>
+            <div class="menu-icon" style="position: absolute; right: 40px; top: 40px;">
+                <i class="fas fa-bars fa-lg"></i>
+            </div>
             <h1><i class="fas fa-money-bill-wave"></i> Expense Tracker</h1>
-            <p class="app-description">Manage your budget effectively in Philippine Peso</p>
+            <p>Track your daily expenses in Philippine Peso and manage your budget effectively</p>
         </header>
-        
-        <main>
-            {% block content %}
-            {% endblock %}
+
+        <main class="main-layout">
+            <aside class="glass-card">
+                <div class="section-header">
+                    <i class="fas fa-plus-circle"></i> Add New Expense
+                </div>
+                {% block sidebar_form %}{% endblock %}
+            </aside>
+
+            <section class="glass-card">
+                {% block main_content %}{% endblock %}
+            </section>
         </main>
+
+        <div class="glass-card" style="margin-top: 30px;">
+             {% block category_chart %}{% endblock %}
+        </div>
     </div>
 
     {% block scripts %}{% endblock %}
