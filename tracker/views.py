@@ -10,16 +10,12 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta 
 import json
 
-# AUTH IMPORTS (Para sa Signup/Login)
+# AUTH IMPORTS
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm 
-# Tinanggal ang: from django.contrib.auth.decorators import login_required 
 
-
-# Helper function (no changes)
 def get_summary_and_chart_data(expenses):
     """Calculates summary metrics (total, highest) and category breakdown."""
-    
     total = expenses.aggregate(Sum('amount'))['amount__sum'] or 0 
     today = timezone.now().date() 
     today_total = expenses.filter(date=today).aggregate(Sum('amount'))['amount__sum'] or 0 
@@ -49,7 +45,7 @@ def get_summary_and_chart_data(expenses):
         'has_expenses': any(item['total'] > 0 for item in chart_data),
     }
 
-# === AUTHENTICATION VIEWS (Pinananatili) ===
+# === AUTHENTICATION VIEWS ===
 
 def user_signup(request):
     """Handles new user registration."""
@@ -90,34 +86,21 @@ def user_logout(request):
     messages.info(request, "You have been logged out.")
     return redirect('login') 
 
-
-# === CORE TRACKER VIEWS (Inalis ang User Filtering) ===
-
-Since you are now using the base.html we just created—which includes a "Financial Reports" link and a "Dashboard" link—we should make sure the tracker_view is solid and consistent with those features.
-
-The code below includes the Safety Check (redirecting guests), the Integrity Fix (attaching the user), and ensures your dashboard remains the "Source of Truth" for your expenses.
-
-Python
-# tracker/views.py
+# === CORE TRACKER VIEWS ===
 
 def tracker_view(request):
     """Displays the main expense tracking dashboard."""
-    
-    # 1. Safety check: Protect the dashboard from unauthenticated access
     if not request.user.is_authenticated:
         return redirect('login')
 
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
-            # 2. CREATE the object in memory, but don't save to database yet
+            # Create object but don't save yet
             expense = form.save(commit=False)
-            
-            # 3. MANUALLY link the expense to the currently logged-in user
-            # This fixes the NotNullViolation (IntegrityError)
+            # Link the user manually
             expense.user = request.user 
-            
-            # 4. SAVE the expense now that it has a valid user_id
+            # Save now with user_id
             expense.save()
             
             messages.success(request, 'Expense added successfully!')
@@ -125,25 +108,20 @@ def tracker_view(request):
     else:
         form = ExpenseForm()
     
-    # 5. Fetch expenses. 
-    # Use Expense.objects.filter(user=request.user) if you want users 
-    # to see ONLY their own data. Otherwise, .all() shows everything to everyone.
+    # Fetching all expenses as per your requirement
     expenses = Expense.objects.all().order_by('-date') 
-    
-    # 6. Calculate summary metrics and chart data using your helper function
     summary_data = get_summary_and_chart_data(expenses)
     
     context = {
         'form': form,
         'expenses': expenses,
         'categories': Expense.CATEGORY_CHOICES,
-        **summary_data, # Spreads total, today_total, highest, chart_data, etc.
+        **summary_data,
     }
     return render(request, 'tracker/pages/tracker.html', context)
 
 def edit_expense(request, pk):
     """Handles editing an existing expense."""
-    # Hindi na kailangang i-check kung ang user ang may-ari ng expense
     expense = get_object_or_404(Expense, pk=pk) 
     
     if request.method == 'POST':
@@ -171,26 +149,24 @@ def edit_expense(request, pk):
 def delete_expense(request, pk):
     """Handles deleting an expense."""
     expense = get_object_or_404(Expense, pk=pk) 
-    
     if request.method == 'POST':
         expense.delete()
         messages.success(request, 'Expense deleted successfully!')
     return redirect('tracker')
 
-
 def report_view(request):
     """Displays financial reports based on filters."""
-    
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     today = timezone.now().date()
     filter_type = request.GET.get('filter') 
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
     range_type = request.GET.get('range', 'monthly') 
 
-    # Base Query: Kumuha ng LAHAT ng expenses (walang user filtering)
     base_expenses_query = Expense.objects.all() 
     
-    # ... (Rest of date logic is the same)
     if filter_type == 'today':
         start_date = today
         end_date = today
@@ -202,17 +178,14 @@ def report_view(request):
         except ValueError:
             start_date = today.replace(day=1)
             end_date = today
-    
     else:
         if range_type == 'weekly':
             start_date = today - timedelta(days=today.weekday())
             end_date = start_date + timedelta(days=6)
-        
         elif range_type == 'yearly':
             start_date = today.replace(month=1, day=1)
             end_date = today.replace(month=12, day=31)
-            
-        else: # monthly (default)
+        else: # monthly
             start_date = today.replace(day=1)
             end_date = start_date + relativedelta(months=1) - timedelta(days=1)
 
@@ -231,7 +204,6 @@ def report_view(request):
         'range_type': range_type,                      
         'filter_type': filter_type,                    
         'highest_expense_obj': highest_expense_obj,  
-        
         **summary_data, 
     }
     
