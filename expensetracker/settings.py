@@ -6,7 +6,6 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# It will look for an environment variable on Vercel; otherwise, it uses the local one.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-w76zva(8jc+mtp*4!jmsiw$$md99e$d^3(3l2ldw$157&jupvg')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -30,7 +29,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Critical for static files on Vercel
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Critical for Vercel
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,14 +57,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'expensetracker.wsgi.application'
 
-# Database
-# This uses DATABASE_URL from Neon on Vercel, or SQLite locally if no URL is found.
+# --- DATABASE CONFIGURATION ---
+# This looks for DATABASE_URL (Neon). If it doesn't find it, it uses local SQLite.
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
     )
 }
+
+# Fallback for local development if DATABASE_URL is not set in your .env or system
+if not DATABASES['default']:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+# ------------------------------
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
