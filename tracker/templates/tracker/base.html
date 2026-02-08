@@ -1,523 +1,205 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Expense Tracker{% endblock %}</title>
-    
+    <title>{% block title %}Daily Expense Tracker{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     
     <style>
         :root {
-            /* Primary Colors */
-            --primary-purple: #6366f1;
-            --primary-cyan: #22d3ee;
-            --primary-blue: #3b82f6;
-            
-            /* Summary Card Colors */
-            --total-bg: #7c3aed;
-            --today-bg: #22d3ee;
-            --highest-bg: #f472b6;
-            
-            /* Category Colors */
-            --cat-food: #fb923c;
-            --cat-transport: #22d3ee;
-            --cat-shopping: #f43f5e;
-            --cat-other: #94a3b8;
-            
-            /* Neutral Colors */
-            --dark: #1e293b;
-            --slate: #64748b;
-            --slate-light: #94a3b8;
-            --bg-main: #e5e9f2;
-            --bg-light: #f8fafc;
-            --white: #ffffff;
-            --border: #e2e8f0;
-            
-            /* Shadows */
-            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+            --primary: #6C63FF;
+            --primary-light: #8A84FF;
+            --secondary: #FF6584;
+            --accent: #36D1DC;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --light: #F8F9FA;
+            --dark: #2D2B55;
+            --gray: #9E9E9E;
+            --card-bg: #FFFFFF;
+            --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
         
-        body { 
-            background: var(--bg-main);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: var(--dark); 
-            min-height: 100vh;
-            padding: 1rem;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: var(--background);
+            color: var(--dark);
             line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
         }
         
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
         }
-
-        /* Header with Gradient */
+        
         header {
-            background: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
-            padding: 1.5rem 2rem;
-            border-radius: 16px;
             text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-md);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.2);
             position: relative;
             overflow: hidden;
         }
         
         header::before {
-            content: '';
+            content: "";
             position: absolute;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            pointer-events: none;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
         }
         
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-        
-        header h1 { 
-            font-size: 1.5rem; 
-            font-weight: 700; 
-            margin-bottom: 0.375rem; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        header h1 i {
-            font-size: 1.25rem;
-        }
-        
-        header p { 
-            opacity: 0.95; 
-            font-size: 0.8125rem;
-            font-weight: 400;
-            line-height: 1.4;
-        }
-
-        /* Main Layout */
-        .main-layout {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 1.25rem;
-            margin-bottom: 1.25rem;
-        }
-
-        /* Card Base Styles */
-        .card {
-            background: var(--white);
-            border-radius: 16px;
-            box-shadow: var(--shadow-sm);
-            padding: 1.5rem;
-        }
-        
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1.25rem;
-            font-size: 0.875rem;
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
             font-weight: 700;
-            color: var(--dark);
-        }
-        
-        .card-header i {
-            color: var(--primary-purple);
-            font-size: 1rem;
-        }
-
-        /* Left Sidebar - Add Expense Form */
-        .form-sidebar {
-            position: sticky;
-            top: 1rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-label {
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 0.375rem;
-        }
-        
-        .form-label i {
-            font-size: 0.75rem;
-            color: var(--slate);
-        }
-        
-        input[type="date"],
-        input[type="text"],
-        input[type="number"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 0.625rem 0.75rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-size: 0.8125rem;
-            font-family: 'Inter', sans-serif;
-            background: var(--white);
-            color: var(--dark);
-            transition: all 0.2s ease;
-        }
-        
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: var(--primary-purple);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-        
-        select {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            padding-right: 2rem;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 70px;
-        }
-
-        /* Submit Button */
-        .btn-submit {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-        
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
-        }
-        
-        .btn-submit:active {
-            transform: translateY(0);
-        }
-
-        /* Right Content Area */
-        .content-area {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        /* Expense Summary Section */
-        .summary-section {
-            margin-bottom: 1rem;
-        }
-        
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.875rem;
-        }
-        
-        .summary-card {
-            padding: 1.125rem 1rem;
-            border-radius: 12px;
-            color: white;
-            text-align: center;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.2s ease;
-            cursor: pointer;
-        }
-        
-        .summary-card:hover {
-            transform: translateY(-3px);
-        }
-        
-        .summary-card .label {
-            font-size: 0.6875rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            opacity: 0.95;
-            margin-bottom: 0.375rem;
-        }
-        
-        .summary-card .value {
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-        
-        .summary-total {
-            background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
-        }
-        
-        .summary-today {
-            background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
-        }
-        
-        .summary-highest {
-            background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
-        }
-
-        /* Recent Expenses Section */
-        .recent-expenses {
-            margin-top: 0.5rem;
-        }
-        
-        .expense-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.625rem;
-            margin-top: 1rem;
-        }
-        
-        .expense-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 1.125rem;
-            background: var(--bg-light);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            transition: all 0.2s ease;
-        }
-        
-        .expense-item:hover {
-            border-color: var(--primary-purple);
-            box-shadow: var(--shadow-sm);
-            transform: translateX(4px);
-        }
-        
-        .expense-details h4 {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 0.25rem;
-        }
-        
-        .expense-details p {
-            font-size: 0.75rem;
-            color: var(--slate);
-        }
-        
-        .expense-amount {
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--primary-purple);
-            letter-spacing: -0.3px;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 2.5rem 1.5rem;
-            color: var(--slate-light);
-        }
-        
-        .empty-state i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.4;
-        }
-        
-        .empty-state p {
-            font-size: 0.875rem;
-            line-height: 1.6;
-        }
-        
-        .empty-state .login-link {
-            color: var(--primary-purple);
-            font-weight: 600;
-            text-decoration: none;
-            border-bottom: 1px solid var(--primary-purple);
-        }
-        
-        .empty-state .login-link:hover {
-            opacity: 0.8;
-        }
-
-        /* Category Breakdown Section */
-        .category-breakdown {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.25rem;
-        }
-        
-        .breakdown-content {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 2rem;
-            align-items: center;
-        }
-        
-        .pie-chart-container {
             position: relative;
-            width: 200px;
-            height: 200px;
+        }
+        
+        .app-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
             margin: 0 auto;
         }
         
-        .category-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.875rem;
+        .card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
         }
         
-        .category-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--border);
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
         
-        .category-item:last-child {
-            border-bottom: none;
+        .form-header {
+            margin-bottom: 30px;
         }
         
-        .category-name {
-            display: flex;
-            align-items: center;
-            gap: 0.625rem;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .form-header h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .form-header p {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
             color: var(--dark);
+            font-size: 0.9rem;
         }
         
-        .category-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.875rem;
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: var(--light);
         }
         
-        .icon-food {
-            background: rgba(251, 146, 60, 0.15);
-            color: #ea580c;
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
         }
         
-        .icon-transport {
-            background: rgba(34, 211, 238, 0.15);
-            color: #0891b2;
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(108, 99, 255, 0.3);
         }
         
-        .icon-shopping {
-            background: rgba(244, 63, 94, 0.15);
-            color: #e11d48;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 99, 255, 0.4);
         }
         
-        .icon-other {
-            background: rgba(148, 163, 184, 0.15);
-            color: #475569;
+        .signup-link, .login-link {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--gray);
         }
         
-        .category-amount {
-            font-size: 0.9375rem;
-            font-weight: 700;
-            color: var(--primary-purple);
+        .signup-link a, .login-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
         }
         
-        .total-expenses {
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 2px solid var(--border);
+        .signup-link a:hover, .login-link a:hover {
+            text-decoration: underline;
         }
         
-        .total-label {
-            font-size: 0.875rem;
-            color: var(--slate);
+        footer {
             text-align: center;
-            margin-bottom: 0.375rem;
+            padding: 20px;
+            margin-top: 30px;
+            color: var(--gray);
         }
         
-        .total-value {
-            font-size: 1.75rem;
-            font-weight: 800;
-            color: var(--primary-purple);
-            text-align: center;
-            letter-spacing: -0.5px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 968px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-sidebar {
-                position: static;
-            }
-            
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .breakdown-content {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
+        .errorlist {
+            list-style: none;
+            color: var(--danger);
+            margin: 5px 0 15px 0;
+            padding: 0;
+            font-size: 0.9em;
+            text-align: left;
+            font-weight: 600;
         }
         
-        @media (max-width: 640px) {
-            body {
-                padding: 0.75rem;
-            }
-            
-            header {
-                padding: 1.25rem 1.5rem;
-            }
-            
-            header h1 {
-                font-size: 1.25rem;
-            }
-            
-            header p {
-                font-size: 0.75rem;
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
             }
             
             .card {
-                padding: 1.25rem;
-            }
-            
-            .main-layout {
-                gap: 1rem;
+                padding: 30px 20px;
             }
         }
     </style>
@@ -525,15 +207,15 @@
 <body>
     <div class="container">
         <header>
-            <div class="header-content">
-                <h1>
-                    <i class="fas fa-wallet"></i>
-                    Expense Tracker
-                </h1>
-                <p>Track your daily expenses in Philippine Peso and manage your budget effectively</p>
-            </div>
+            <h1><i class="fas fa-money-bill-wave"></i> Expense Tracker</h1>
+            <p class="app-description">Track your daily expenses in Philippine Peso and manage your budget effectively</p>
         </header>
+        
         {% block content %}{% endblock %}
+        
+        <footer>
+            <p>&copy; 2023 Daily Expense Tracker. All rights reserved.</p>
+        </footer>
     </div>
 </body>
 </html>
