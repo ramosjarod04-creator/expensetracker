@@ -93,23 +93,31 @@ def user_logout(request):
 
 # === CORE TRACKER VIEWS (Inalis ang User Filtering) ===
 
+Since you are now using the base.html we just created—which includes a "Financial Reports" link and a "Dashboard" link—we should make sure the tracker_view is solid and consistent with those features.
+
+The code below includes the Safety Check (redirecting guests), the Integrity Fix (attaching the user), and ensures your dashboard remains the "Source of Truth" for your expenses.
+
+Python
+# tracker/views.py
+
 def tracker_view(request):
     """Displays the main expense tracking dashboard."""
     
-    # Safety check: If not logged in, redirect to login page
+    # 1. Safety check: Protect the dashboard from unauthenticated access
     if not request.user.is_authenticated:
         return redirect('login')
 
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
-            # commit=False prevents saving to the database immediately
+            # 2. CREATE the object in memory, but don't save to database yet
             expense = form.save(commit=False)
             
-            # Manually link the expense to the current user
+            # 3. MANUALLY link the expense to the currently logged-in user
+            # This fixes the NotNullViolation (IntegrityError)
             expense.user = request.user 
             
-            # Now save the expense with the user_id included
+            # 4. SAVE the expense now that it has a valid user_id
             expense.save()
             
             messages.success(request, 'Expense added successfully!')
@@ -117,16 +125,19 @@ def tracker_view(request):
     else:
         form = ExpenseForm()
     
-    # Kumuha ng LAHAT ng expenses (or use request.user.expenses.all() if you want privacy)
-    expenses = Expense.objects.all() 
+    # 5. Fetch expenses. 
+    # Use Expense.objects.filter(user=request.user) if you want users 
+    # to see ONLY their own data. Otherwise, .all() shows everything to everyone.
+    expenses = Expense.objects.all().order_by('-date') 
     
+    # 6. Calculate summary metrics and chart data using your helper function
     summary_data = get_summary_and_chart_data(expenses)
     
     context = {
         'form': form,
         'expenses': expenses,
         'categories': Expense.CATEGORY_CHOICES,
-        **summary_data,
+        **summary_data, # Spreads total, today_total, highest, chart_data, etc.
     }
     return render(request, 'tracker/pages/tracker.html', context)
 
